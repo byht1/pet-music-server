@@ -14,4 +14,9 @@ export class TrackService {
     const response = await this.trackModule.create(newTrack);
     return response;
   }
+
+  async trackAll(): Promise<TrackDocument[]> {
+    const response = await this.trackModule.find().populate('comments');
+    return response;
+  }
 }

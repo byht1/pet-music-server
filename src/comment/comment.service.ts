@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-import { Comment, CommentDocument } from 'src/db-schema/comment.sche,a';
+import { Model, ObjectId } from 'mongoose';
+import { Comment, CommentDocument } from 'src/db-schema/comment.schema';
 import { Track, TrackDocument } from 'src/db-schema/track.schema';
 import { CommentDto } from './dto/comment.dto';
 
@@ -18,6 +18,11 @@ export class CommentService {
     const response = await this.commentModule.create({ ...comment });
     track.comments.push(response.id);
     await track.save();
+    return response;
+  }
+
+  async commentAll(trackId: ObjectId): Promise<CommentDocument[]> {
+    const response = await this.commentModule.find({ track_id: trackId });
     return response;
   }
 }
