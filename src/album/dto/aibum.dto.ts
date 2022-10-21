@@ -1,5 +1,3 @@
-import { ObjectId } from 'mongoose';
-
 export class AlbumDto {
   readonly name_album: string;
   readonly picture: string;

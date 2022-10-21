@@ -21,8 +21,33 @@ export class CommentService {
     return response;
   }
 
-  async commentAll(trackId: ObjectId): Promise<CommentDocument[]> {
+  async commentAll(): Promise<CommentDocument[]> {
+    const response = await this.commentModule.find();
+    return response;
+  }
+
+  async commentsById(id: ObjectId): Promise<CommentDocument> {
+    const response = await this.commentModule.findById(id);
+    return response;
+  }
+
+  async commentsTrackAll(trackId: ObjectId): Promise<CommentDocument[]> {
     const response = await this.commentModule.find({ track_id: trackId });
+    return response;
+  }
+
+  async updateComment(
+    comment: CommentDto,
+    id: ObjectId,
+  ): Promise<CommentDocument> {
+    const response = await this.commentModule.findByIdAndUpdate(id, comment, {
+      new: true,
+    });
+    return response;
+  }
+
+  async deleteComment(id: ObjectId): Promise<CommentDocument> {
+    const response = this.commentModule.findByIdAndDelete(id);
     return response;
   }
 }

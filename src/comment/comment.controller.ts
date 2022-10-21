@@ -1,4 +1,12 @@
-import { Controller, Get, Post, Body, Param } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Put,
+  Delete,
+  Body,
+  Param,
+} from '@nestjs/common';
 import { CommentService } from './comment.service';
 import { CommentDto } from './dto/comment.dto';
 import { ObjectId } from 'mongoose';
@@ -12,8 +20,28 @@ export class CommentController {
     return this.commentService.newComment(comment);
   }
 
+  @Get()
+  commentAll() {
+    return this.commentService.commentAll();
+  }
+
+  @Get('/:id')
+  commentsById(@Param('id') id: ObjectId) {
+    return this.commentService.commentsTrackAll(id);
+  }
+
   @Get('/:trackId')
-  commentAll(@Param('trackId') trackId: ObjectId) {
-    return this.commentService.commentAll(trackId);
+  commentsTrackAll(@Param('trackId') trackId: ObjectId) {
+    return this.commentService.commentsTrackAll(trackId);
+  }
+
+  @Put('/:id')
+  updateComment(@Body() comment: CommentDto, @Param('id') id: ObjectId) {
+    return this.commentService.updateComment(comment, id);
+  }
+
+  @Delete('/:id')
+  deleteComment(@Param('id') id: ObjectId) {
+    return this.commentService.deleteComment(id);
   }
 }
