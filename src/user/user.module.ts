@@ -20,6 +20,6 @@ import { User, UserSchema } from 'src/db-schema/user-schema';
   ],
   providers: [UserService],
   controllers: [UserController],
-  exports: [UserService, JwtModule],
+  exports: [JwtModule, UserService, MongooseModule],
 })
 export class UserModule {}
