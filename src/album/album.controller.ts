@@ -21,4 +21,9 @@ export class AlbumController {
   albumById(@Param('id') id: ObjectId) {
     return this.albumService.albumById(id);
   }
+
+  @Get('/:id')
+  likesPlus(@Param('id') id: ObjectId) {
+    return this.albumService.likesPlus(id);
+  }
 }

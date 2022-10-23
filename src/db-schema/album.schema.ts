@@ -26,6 +26,12 @@ export class Album {
 
   @Prop()
   release_date: string;
+
+  @Prop({
+    type: Number,
+    default: 0,
+  })
+  likes: number;
 }
 
 export const AlbumSchema = SchemaFactory.createForClass(Album);

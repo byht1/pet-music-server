@@ -20,7 +20,7 @@ import { TrackService } from './track.service';
 export class TrackController {
   constructor(private trackService: TrackService) {}
 
-  // @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @UseInterceptors(
     FileFieldsInterceptor([
       { name: 'picture', maxCount: 1 },
@@ -53,5 +53,10 @@ export class TrackController {
   @Delete('/:id')
   declareTrack(@Param('id') id: ObjectId) {
     return this.trackService.declareTrack(id);
+  }
+
+  @Get('/:id')
+  likesPlus(@Param('id') id: ObjectId) {
+    return this.trackService.likesPlus(id);
   }
 }

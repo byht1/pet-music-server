@@ -7,4 +7,5 @@ export class NewTrackDto {
   readonly text_track: string;
   readonly genre: string;
   readonly album: string;
+  readonly likes: number;
 }

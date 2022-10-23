@@ -60,6 +60,12 @@ export class Track {
     required: true,
   })
   genre: string;
+
+  @Prop({
+    type: Number,
+    default: 0,
+  })
+  likes: number;
 }
 
 export const TrackSchema = SchemaFactory.createForClass(Track);

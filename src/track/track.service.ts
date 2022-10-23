@@ -60,4 +60,9 @@ export class TrackService {
     }
     return response;
   }
+
+  async likesPlus(id: ObjectId): Promise<void> {
+    const response = await this.trackModule.findById(id);
+    response.likes += 1;
+  }
 }

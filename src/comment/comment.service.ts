@@ -50,4 +50,9 @@ export class CommentService {
     const response = this.commentModule.findByIdAndDelete(id);
     return response;
   }
+
+  async likesPlus(id: ObjectId): Promise<void> {
+    const response = await this.commentModule.findById(id);
+    response.likes += 1;
+  }
 }

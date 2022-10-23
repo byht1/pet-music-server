@@ -44,4 +44,9 @@ export class CommentController {
   deleteComment(@Param('id') id: ObjectId) {
     return this.commentService.deleteComment(id);
   }
+
+  @Get('/:id')
+  likesPlus(@Param('id') id: ObjectId) {
+    return this.commentService.likesPlus(id);
+  }
 }

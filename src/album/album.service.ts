@@ -24,4 +24,9 @@ export class AlbumService {
     const response = await this.albumSchema.findById(id);
     return response;
   }
+
+  async likesPlus(id: ObjectId): Promise<void> {
+    const response = await this.albumSchema.findById(id);
+    response.likes += 1;
+  }
 }

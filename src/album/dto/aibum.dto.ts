@@ -5,4 +5,5 @@ export class AlbumDto {
   readonly genre: string;
   readonly group_name: string;
   readonly release_date: string;
+  readonly likes: number;
 }

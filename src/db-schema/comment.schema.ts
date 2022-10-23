@@ -25,6 +25,12 @@ export class Comment {
     required: true,
   })
   track_id: Track;
+
+  @Prop({
+    type: Number,
+    default: 0,
+  })
+  likes: number;
 }
 
 export const CommentSchema = SchemaFactory.createForClass(Comment);
