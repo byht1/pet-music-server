@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { AlbumDto } from './dto/aibum.dto';
+import { AlbumDto } from './dto/album.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Album, AlbumDocument } from 'src/db-schema/album.schema';
 import { Model, ObjectId } from 'mongoose';

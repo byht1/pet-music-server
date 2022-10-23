@@ -1,8 +1,10 @@
 import { Controller, Get, Post, Body, Param } from '@nestjs/common';
-import { AlbumDto } from './dto/aibum.dto';
+import { ApiTags } from '@nestjs/swagger';
+import { AlbumDto } from './dto/album.dto';
 import { ObjectId } from 'mongoose';
 import { AlbumService } from './album.service';
 
+@ApiTags('Album')
 @Controller('album')
 export class AlbumController {
   constructor(private albumService: AlbumService) {}

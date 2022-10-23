@@ -35,7 +35,7 @@ export class UserService {
     return newUser;
   }
 
-  async logIn(user: UserDto) {
+  async logIn(user: UserDto): Promise<UserDocument> {
     const { username, email, password } = user;
 
     const isUser = await this.userModel.findOne({ username });
@@ -52,9 +52,9 @@ export class UserService {
 
     const payload = { username, email, id: isUser._id };
 
-    const token = await this.generatorToken(payload);
+    const userToken = await this.generatorToken(payload);
 
-    return { token, username, email };
+    return userToken;
   }
 
   async logOut(id: ObjectId) {
@@ -63,23 +63,27 @@ export class UserService {
     return '';
   }
 
-  async current(req: Request) {
+  async current(req: Request): Promise<UserDocument> {
     const {
       user: { username, email, id },
     }: any = req;
 
     const payload = { username, email, id };
-    const token = await this.generatorToken(payload);
+    const userToken = await this.generatorToken(payload);
 
-    return { ...payload, token };
+    return userToken;
   }
 
-  private async generatorToken(payload): Promise<string> {
+  private async generatorToken(payload): Promise<UserDocument> {
     const id = payload.id;
     const token = this.jwtService.sign(payload);
 
-    await this.userModel.findByIdAndUpdate(id, { token }, { new: true });
+    const user = await this.userModel.findByIdAndUpdate(
+      id,
+      { token },
+      { new: true },
+    );
 
-    return token;
+    return user;
   }
 }
