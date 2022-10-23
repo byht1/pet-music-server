@@ -7,7 +7,10 @@ import {
   Body,
   Param,
   UseGuards,
+  UseInterceptors,
+  UploadedFiles,
 } from '@nestjs/common';
+import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { ObjectId } from 'mongoose';
 import { JwtAuthGuard } from 'src/user/jwt-auth.guard';
 import { NewTrackDto } from './dto/newTrack.dto';
@@ -17,10 +20,17 @@ import { TrackService } from './track.service';
 export class TrackController {
   constructor(private trackService: TrackService) {}
 
-  @UseGuards(JwtAuthGuard)
+  // @UseGuards(JwtAuthGuard)
+  @UseInterceptors(
+    FileFieldsInterceptor([
+      { name: 'picture', maxCount: 1 },
+      { name: 'audio', maxCount: 1 },
+    ]),
+  )
   @Post()
-  newTrack(@Body() newTrack: NewTrackDto) {
-    return this.trackService.newTrack(newTrack);
+  newTrack(@UploadedFiles() files, @Body() newTrack: NewTrackDto) {
+    const { picture, audio } = files;
+    return this.trackService.newTrack(newTrack, picture[0], audio[0]);
   }
 
   @Get()

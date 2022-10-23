@@ -4,6 +4,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Track, TrackDocument } from 'src/db-schema/track.schema';
 import { Model, ObjectId } from 'mongoose';
 import { Comment, CommentDocument } from 'src/db-schema/comment.schema';
+import { fbStorage, FileType } from 'src/firebase/firebace';
 
 @Injectable()
 export class TrackService {
@@ -12,8 +13,19 @@ export class TrackService {
     @InjectModel(Comment.name) private commentModule: Model<CommentDocument>,
   ) {}
 
-  async newTrack(newTrack: NewTrackDto): Promise<TrackDocument> {
-    const response = await this.trackModule.create(newTrack);
+  async newTrack(
+    newTrack: NewTrackDto,
+    picture,
+    audio,
+  ): Promise<TrackDocument> {
+    const audioPath = await fbStorage(FileType.AUDIO, audio);
+    const picturePath = await fbStorage(FileType.IMAGE, picture);
+
+    const response = await this.trackModule.create({
+      ...newTrack,
+      picture: picturePath,
+      audio: audioPath,
+    });
     return response;
   }
 
@@ -41,7 +53,6 @@ export class TrackService {
   async declareTrack(id: ObjectId): Promise<TrackDocument> {
     const response = await this.trackModule.findByIdAndDelete(id);
     const comments = response.comments;
-    console.log('🚀 ~ TrackService ~ comments', comments);
     if (comments.length !== 0) {
       for (const comment of comments) {
         await this.commentModule.findByIdAndDelete(comment);

@@ -35,7 +35,7 @@ export class Track {
     type: String,
     required: true,
   })
-  link_track: string;
+  audio: string;
 
   @Prop({
     type: String,
