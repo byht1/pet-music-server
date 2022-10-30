@@ -3,6 +3,7 @@ import { AlbumDto } from './dto/album.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Album, AlbumDocument } from 'src/db-schema/album.schema';
 import { Model, ObjectId } from 'mongoose';
+import { fbStorage, FileType } from 'src/firebase/firebace';
 
 @Injectable()
 export class AlbumService {
@@ -10,8 +11,14 @@ export class AlbumService {
     @InjectModel(Album.name) private albumSchema: Model<AlbumDocument>,
   ) {}
 
-  async newAlbum(albumDto: AlbumDto): Promise<AlbumDocument> {
-    const response = await this.albumSchema.create({ ...albumDto });
+  async newAlbum(albumDto: AlbumDto, picture): Promise<AlbumDocument> {
+    console.log('🚀 ~ AlbumService ~ albumDto', albumDto.genre);
+    const picturePath = await fbStorage(FileType.IMAGE, picture);
+    const response = await this.albumSchema.create({
+      ...albumDto,
+      picture: picturePath,
+      genre: albumDto.genre.split(','),
+    });
     return response;
   }
 

@@ -15,7 +15,7 @@ export class UserService {
   ) {}
 
   async signUp(user: UserDto): Promise<UserDocument> {
-    const { email, password } = user;
+    const { email, password, username } = user;
     const isUser = await this.userModel.findOne({ email });
 
     if (isUser) {
@@ -32,7 +32,11 @@ export class UserService {
       password: hashPassword,
     });
 
-    return newUser;
+    const payload = { username, email, id: newUser._id };
+
+    const userPlusToken = this.generatorToken(payload);
+
+    return userPlusToken;
   }
 
   async logIn(user: UserDto): Promise<UserDocument> {
@@ -64,6 +68,7 @@ export class UserService {
   }
 
   async current(req: Request): Promise<UserDocument> {
+    console.log('start');
     const {
       user: { username, email, id },
     }: any = req;

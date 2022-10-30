@@ -31,7 +31,7 @@ export class JwtAuthGuard implements CanActivate {
 
       const user = await this.userModel.findById(isValidToken.id);
 
-      if (!user || user.token !== token) {
+      if (!user || !user.token) {
         throw new HttpException('Не валідний токен', HttpStatus.FORBIDDEN);
       }
 
@@ -43,3 +43,6 @@ export class JwtAuthGuard implements CanActivate {
     }
   }
 }
+
+// createdAt 2022-10-28T19:53:36.453+00:00
+// updatedAt 2022-10-28T19:53:36.578+00:00

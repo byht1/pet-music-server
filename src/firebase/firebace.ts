@@ -21,7 +21,6 @@ export enum FileType {
 }
 
 export async function fbStorage(type, file) {
-  console.log('🚀 ~ file', file);
   const fileExtension = file.originalname.split('.').pop();
   const fileName = uuid.v4() + '.' + fileExtension;
   file.originalname = fileName;
@@ -29,7 +28,6 @@ export async function fbStorage(type, file) {
   const metadata = {
     contentType: file.mimetype,
   };
-
   try {
     uploadBytes(storageRef, file.buffer, metadata);
     return fileName;

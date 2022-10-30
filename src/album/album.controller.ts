@@ -1,8 +1,17 @@
-import { Controller, Get, Post, Body, Param } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  UseInterceptors,
+  UploadedFiles,
+} from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { AlbumDto } from './dto/album.dto';
 import { ObjectId } from 'mongoose';
 import { AlbumService } from './album.service';
+import { FileFieldsInterceptor } from '@nestjs/platform-express';
 
 @ApiTags('Album')
 @Controller('album')
@@ -10,8 +19,10 @@ export class AlbumController {
   constructor(private albumService: AlbumService) {}
 
   @Post()
-  newAlbum(@Body() albumDto: AlbumDto) {
-    return this.albumService.newAlbum(albumDto);
+  @UseInterceptors(FileFieldsInterceptor([{ name: 'picture', maxCount: 1 }]))
+  newAlbum(@Body() albumDto: AlbumDto, @UploadedFiles() files) {
+    const { picture } = files;
+    return this.albumService.newAlbum(albumDto, picture[0]);
   }
 
   @Get()

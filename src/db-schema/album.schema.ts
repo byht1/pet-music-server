@@ -7,7 +7,7 @@ export type AlbumDocument = Album & Document;
 @Schema()
 export class Album {
   @Prop()
-  album_name: string;
+  name_album: string;
 
   @Prop()
   picture: string;
@@ -20,6 +20,9 @@ export class Album {
     default: [],
   })
   album_tracks: Track[];
+
+  @Prop()
+  genre: string[];
 
   @Prop()
   group_name: string;
