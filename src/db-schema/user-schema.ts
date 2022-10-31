@@ -1,6 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
 import mongoose, { Document } from 'mongoose';
+import { Album } from './album.schema';
 import { Track } from './track.schema';
 
 export type UserDocument = User & Document;
@@ -51,6 +52,13 @@ export class User {
     default: [],
   })
   track_push: Track[];
+
+  @ApiProperty({ example: ['id альбомів які додав користувач'] })
+  @Prop({
+    type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Album' }],
+    default: [],
+  })
+  album_push: Album[];
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

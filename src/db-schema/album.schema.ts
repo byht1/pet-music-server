@@ -4,7 +4,7 @@ import { Track } from './track.schema';
 
 export type AlbumDocument = Album & Document;
 
-@Schema()
+@Schema({ versionKey: false, timestamps: true })
 export class Album {
   @Prop()
   name_album: string;
