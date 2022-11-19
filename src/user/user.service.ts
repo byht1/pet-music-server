@@ -6,7 +6,6 @@ import * as bcrypt from 'bcryptjs';
 import { User, UserDocument } from 'src/db-schema/user-schema';
 import { UserDto } from './dto/user.dto';
 import { Request } from 'express';
-import { AlbumDto } from 'src/album/dto/album.dto';
 
 @Injectable()
 export class UserService {
@@ -73,7 +72,6 @@ export class UserService {
   }
 
   async current(req: Request): Promise<UserDocument> {
-    console.log('start');
     const {
       user: { username, email, id },
     }: any = req;
@@ -82,6 +80,14 @@ export class UserService {
     const userToken = await this.generatorToken(payload);
 
     return userToken;
+  }
+
+  async albumUser(id: ObjectId) {
+    const data = await this.userModel.findById(id).populate('album');
+    // const data = this.userModel
+    //   .findById(id, { album_push: true })
+    //   .populate('albums');
+    return data;
   }
 
   private async generatorToken(payload): Promise<UserDocument> {

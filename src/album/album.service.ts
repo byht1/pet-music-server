@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { AlbumDto } from './dto/album.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Album, AlbumDocument } from 'src/db-schema/album.schema';
+import { User, UserDocument } from 'src/db-schema/user-schema';
 import { Model, ObjectId } from 'mongoose';
 import { fbStorage, FileType } from 'src/firebase/firebace';
 import { UserService } from 'src/user/user.service';
@@ -10,6 +11,7 @@ import { UserService } from 'src/user/user.service';
 export class AlbumService {
   constructor(
     @InjectModel(Album.name) private albumSchema: Model<AlbumDocument>,
+    @InjectModel(User.name) private userModel: Model<UserDocument>,
     private userService: UserService,
   ) {}
 
@@ -38,12 +40,20 @@ export class AlbumService {
   }
 
   async albumById(id: ObjectId): Promise<AlbumDocument> {
-    const response = await this.albumSchema.findById(id);
+    const response = await this.albumSchema.findById(id).populate('comments');
     return response;
   }
 
   async likesPlus(id: ObjectId): Promise<void> {
     const response = await this.albumSchema.findById(id);
     response.likes += 1;
+    response.save();
+  }
+
+  async albumUser(id: ObjectId) {
+    const data = await this.userModel
+      .findById(id, 'album_push')
+      .populate('album_push');
+    return data.album_push.map((album) => album.name_album);
   }
 }

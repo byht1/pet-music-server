@@ -1,6 +1,8 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { Document } from 'mongoose';
+import { ApiProperty } from '@nestjs/swagger';
 import { Track } from './track.schema';
+import { Comment } from './comment.schema';
 
 export type AlbumDocument = Album & Document;
 
@@ -15,6 +17,7 @@ export class Album {
   @Prop()
   author: string;
 
+  @ApiProperty({ type: () => [Track] })
   @Prop({
     type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Track' }],
     default: [],
@@ -35,6 +38,13 @@ export class Album {
     default: 0,
   })
   likes: number;
+
+  @ApiProperty({ type: () => [Comment] })
+  @Prop({
+    type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Comment' }],
+    default: [],
+  })
+  comments: Comment[];
 }
 
 export const AlbumSchema = SchemaFactory.createForClass(Album);

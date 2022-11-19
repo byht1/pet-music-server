@@ -102,7 +102,7 @@ export class TrackController {
   }
 
   @ApiResponse({ status: 500, description: 'Server error' })
-  @Get('/:id')
+  @Get('like/:id')
   likesPlus(@Param('id') id: ObjectId) {
     return this.trackService.likesPlus(id);
   }

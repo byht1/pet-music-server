@@ -9,13 +9,13 @@ import {
   UseGuards,
   Req,
 } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
 import { AlbumDto } from './dto/album.dto';
 import { ObjectId } from 'mongoose';
 import { AlbumService } from './album.service';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { JwtAuthGuard } from 'src/user/jwt-auth.guard';
 import { Request } from 'express';
+import { ApiHeader, ApiResponse, ApiTags } from '@nestjs/swagger';
 
 @ApiTags('Album')
 @Controller('album')
@@ -48,8 +48,26 @@ export class AlbumController {
     return this.albumService.albumById(id);
   }
 
-  @Get('/:id')
+  @Get('/like/:id')
   likesPlus(@Param('id') id: ObjectId) {
     return this.albumService.likesPlus(id);
+  }
+
+  @ApiHeader({
+    name: 'Authorization',
+    required: true,
+    description: 'The token issued to the current user.',
+  })
+  @ApiResponse({ status: 201, type: [String] })
+  @ApiResponse({ status: 403, description: 'Не валідний токен' })
+  @ApiResponse({ status: 500, description: 'Server error' })
+  @UseGuards(JwtAuthGuard)
+  @Get('user/album-list-push')
+  albumUser(@Req() req: Request) {
+    const {
+      user: { id },
+    }: any = req;
+
+    return this.albumService.albumUser(id);
   }
 }

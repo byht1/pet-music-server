@@ -71,4 +71,22 @@ export class UserController {
   current(@Req() req: Request) {
     return this.userService.current(req);
   }
+
+  @ApiHeader({
+    name: 'Authorization',
+    required: true,
+    description: 'The token issued to the current user.',
+  })
+  @ApiResponse({ status: 201, type: [String] })
+  @ApiResponse({ status: 403, description: 'Не валідний токен' })
+  @ApiResponse({ status: 500, description: 'Server error' })
+  @UseGuards(JwtAuthGuard)
+  @Get('/album')
+  albumUser(@Req() req: Request) {
+    const {
+      user: { id },
+    }: any = req;
+
+    return this.userService.albumUser(id);
+  }
 }
