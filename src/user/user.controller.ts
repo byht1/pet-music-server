@@ -6,6 +6,7 @@ import {
   Post,
   Req,
   UseGuards,
+  UsePipes,
 } from '@nestjs/common';
 import { ApiHeader, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { UserDto } from './dto/user.dto';
@@ -13,6 +14,8 @@ import { UserService } from './user.service';
 import { JwtAuthGuard } from './jwt-auth.guard';
 import { Request } from 'express';
 import { User } from 'src/db-schema/user-schema';
+import { NewUserDto } from './dto/signUpDto';
+import { ValidatePipe } from 'src/pipe/validete.pipe';
 
 @ApiTags('User')
 @Controller('user')
@@ -26,9 +29,10 @@ export class UserController {
     description: 'Користувач з такою елктроною поштою уже існує',
   })
   @ApiResponse({ status: 500, description: 'Server error' })
-  @Post('/signup')
-  signUp(@Body() userDto: UserDto) {
-    return this.userService.signUp(userDto);
+  @UsePipes(ValidatePipe)
+  @Post('/sing-up')
+  signUp(@Body() newUserDto: NewUserDto) {
+    return this.userService.signUp(newUserDto);
   }
 
   @ApiResponse({ status: 201, type: User })
