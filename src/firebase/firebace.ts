@@ -1,5 +1,5 @@
 import { initializeApp } from 'firebase/app';
-import { getStorage, ref, uploadBytes } from 'firebase/storage';
+import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import * as uuid from 'uuid';
 
 const firebaseConfig = {
@@ -29,8 +29,9 @@ export async function fbStorage(type, file) {
     contentType: file.mimetype,
   };
   try {
-    uploadBytes(storageRef, file.buffer, metadata);
-    return fileName;
+    await uploadBytes(storageRef, file.buffer, metadata);
+    const url = await getDownloadURL(storageRef);
+    return url;
   } catch (error) {
     return error;
   }
