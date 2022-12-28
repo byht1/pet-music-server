@@ -6,6 +6,7 @@ import * as bcrypt from 'bcryptjs';
 import { User, UserDocument } from 'src/db-schema/user-schema';
 import { UserDto } from './dto/user.dto';
 import { Request } from 'express';
+import { NewUserDto } from './dto/signUpDto';
 
 @Injectable()
 export class UserService {
@@ -14,7 +15,7 @@ export class UserService {
     private jwtService: JwtService,
   ) {}
 
-  async signUp(user: UserDto): Promise<UserDocument> {
+  async signUp(user: NewUserDto): Promise<UserDocument> {
     const { email, password, username } = user;
     const isUser = await this.userModel.findOne({ email });
 
