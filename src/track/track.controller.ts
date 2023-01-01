@@ -34,7 +34,7 @@ export class TrackController {
   })
   @ApiResponse({ status: 403, description: 'Не валідний токен' })
   @ApiResponse({ status: 500, description: 'Server error' })
-  @UseGuards(JwtAuthGuard)
+  // @UseGuards(JwtAuthGuard)
   @UseInterceptors(
     FileFieldsInterceptor([
       { name: 'picture', maxCount: 1 },
