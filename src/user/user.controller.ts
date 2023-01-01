@@ -40,6 +40,7 @@ export class UserController {
   @ApiResponse({ status: 500, description: 'Server error' })
   @Post('/login')
   logIn(@Body() userDto: UserDto) {
+    console.log('login');
     return this.userService.logIn(userDto);
   }
 
