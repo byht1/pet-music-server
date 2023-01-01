@@ -17,7 +17,7 @@ export class TrackService {
     newTrack: NewTrackDto,
     picture,
     audio,
-  ): Promise<TrackDocument> {
+  ): Promise<TrackDocument | any> {
     const audioPath = await fbStorage(FileType.AUDIO, audio);
     const picturePath = await fbStorage(FileType.IMAGE, picture);
 

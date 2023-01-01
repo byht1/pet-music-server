@@ -25,29 +25,14 @@ export async function fbStorage(type, file) {
   const fileName = uuid.v4() + '.' + fileExtension;
   file.originalname = fileName;
   const storageRef = ref(storage, `${type}/${file.originalname}`);
-  // console.log('🚀  storageRef', storageRef);
   const metadata = {
     contentType: file.mimetype,
   };
-  // const url = await getDownloadURL(
-  //   ref(storage, 'image/f470c6f6-f936-45c3-9be8-01c35b283c73.png'),
-  // );
-  // console.log('🚀  url', url);
   try {
     await uploadBytes(storageRef, file.buffer, metadata);
-
-    // const url = await getDownloadURL(storageRef);
-
-    // return url;
-    return fileName;
+    const url = await getDownloadURL(storageRef);
+    return url;
   } catch (error) {
     return error;
   }
-}
-
-export async function link() {
-  const storageRef = ref(storage, 'image/300.jpeg');
-  // console.log('🚀  storageRef', storageRef);
-
-  return storageRef;
 }
