@@ -13,10 +13,10 @@ import {
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { ObjectId } from 'mongoose';
 import { ApiHeader, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { JwtAuthGuard } from 'src/user/jwt-auth.guard';
 import { NewTrackDto } from './dto/newTrack.dto';
 import { TrackService } from './track.service';
 import { Track } from 'src/db-schema/track.schema';
+import { JwtAuthGuard } from 'src/user/guard/jwt-auth.guard';
 
 @ApiTags('Track')
 @Controller('track')

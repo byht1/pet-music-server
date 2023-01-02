@@ -1,3 +1,4 @@
+import { SessionSerializer } from './strategy/Serializer';
 import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { MongooseModule } from '@nestjs/mongoose';
@@ -6,11 +7,12 @@ import { UserService } from './user.service';
 import { UserController } from './user.controller';
 import { User, UserSchema } from 'src/db-schema/user-schema';
 import { Album, AlbumSchema } from 'src/db-schema/album.schema';
-// import { Track, TrackSchema } from 'src/db-schema/track.schema';
-// import { Comment, CommentSchema } from 'src/db-schema/comment.schema';
+import { ConfigModule } from '@nestjs/config';
+import { GoogleStrategy } from './strategy/GoogleStrategy';
 
 @Module({
   imports: [
+    ConfigModule.forRoot({ envFilePath: '.env' }),
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
     MongooseModule.forFeature([{ name: Album.name, schema: AlbumSchema }]),
     JwtModule.register({
@@ -20,7 +22,7 @@ import { Album, AlbumSchema } from 'src/db-schema/album.schema';
       },
     }),
   ],
-  providers: [UserService],
+  providers: [UserService, GoogleStrategy, SessionSerializer],
   controllers: [UserController],
   exports: [JwtModule, UserService, MongooseModule],
 })

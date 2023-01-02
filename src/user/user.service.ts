@@ -6,7 +6,9 @@ import * as bcrypt from 'bcryptjs';
 import { User, UserDocument } from 'src/db-schema/user-schema';
 import { UserDto } from './dto/user.dto';
 import { Request } from 'express';
-import { NewUserDto } from './dto/signUpDto';
+import { SignUpDto } from './dto/signUpDto';
+import { isUserDto } from './dto/isUserDto';
+import { NewUserDto } from './dto/newUserDto';
 
 @Injectable()
 export class UserService {
@@ -15,9 +17,31 @@ export class UserService {
     private jwtService: JwtService,
   ) {}
 
-  async signUp(user: NewUserDto): Promise<UserDocument> {
+  async isUser({ email, username }: isUserDto): Promise<UserDocument> {
+    const user = await this.userModel.findOne({
+      $or: [{ username: username }, { email: email }],
+    });
+
+    return user;
+  }
+
+  async newUser(newUserData: NewUserDto): Promise<UserDocument> {
+    const user = await this.userModel.create({
+      ...newUserData,
+    });
+
+    return user;
+  }
+
+  async findUser(id: number): Promise<UserDocument> {
+    const user = await this.userModel.findById(id);
+
+    return user;
+  }
+
+  async signUp(user: SignUpDto): Promise<UserDocument> {
     const { email, password, username } = user;
-    const isUser = await this.userModel.findOne({ email });
+    const isUser = await this.isUser({ email, username });
 
     if (isUser) {
       throw new HttpException(
@@ -28,12 +52,13 @@ export class UserService {
 
     const hashPassword = await bcrypt.hash(password, 10);
 
-    const newUser = await this.userModel.create({
-      ...user,
+    const newUser = await this.newUser({
+      email,
+      username,
       password: hashPassword,
     });
 
-    const payload = { username, email, id: newUser._id };
+    const payload = { id: newUser._id };
 
     const userPlusToken = this.generatorToken(payload);
 
@@ -91,7 +116,7 @@ export class UserService {
     return data;
   }
 
-  private async generatorToken(payload): Promise<UserDocument> {
+  async generatorToken(payload): Promise<UserDocument> {
     const id = payload.id;
     const token = this.jwtService.sign(payload);
 

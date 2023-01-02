@@ -1,24 +1,29 @@
+import { GoogleGuard } from './guard/google.guard';
 import {
   Body,
   Controller,
   Get,
   HttpCode,
+  HttpStatus,
   Post,
   Req,
+  Res,
   UseGuards,
   UsePipes,
 } from '@nestjs/common';
 import { ApiHeader, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { UserDto } from './dto/user.dto';
 import { UserService } from './user.service';
-import { JwtAuthGuard } from './jwt-auth.guard';
+import { JwtAuthGuard } from './guard/jwt-auth.guard';
 import { Request } from 'express';
 import { User } from 'src/db-schema/user-schema';
-import { NewUserDto } from './dto/signUpDto';
-import { ValidatePipe } from 'src/pipe/validete.pipe';
+import { SignUpDto } from './dto/signUpDto';
+import { ValidatePipe } from './pipe/validete.pipe';
+import { RequestCustom } from './type/req';
+import passport from 'passport';
 
-@ApiTags('User')
-@Controller('user')
+@ApiTags('Users')
+@Controller('users')
 export class UserController {
   constructor(private userService: UserService) {}
 
@@ -31,8 +36,23 @@ export class UserController {
   @ApiResponse({ status: 500, description: 'Server error' })
   @UsePipes(ValidatePipe)
   @Post('/sing-up')
-  signUp(@Body() newUserDto: NewUserDto) {
-    return this.userService.signUp(newUserDto);
+  signUp(@Body() signUpDto: SignUpDto) {
+    return this.userService.signUp(signUpDto);
+  }
+
+  @Get('/google/login')
+  @UseGuards(GoogleGuard)
+  googleLogIn() {
+    return { msg: 'Google Authentication' };
+  }
+
+  @Get('/google/redirect')
+  @UseGuards(GoogleGuard)
+  googleRedirect(@Req() req: RequestCustom) {
+    console.log(11111);
+    return { msg: 'OK' };
+
+    // return this.userService.generatorToken({ id: req.user._id });
   }
 
   @ApiResponse({ status: 201, type: User })

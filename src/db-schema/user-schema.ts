@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
-import mongoose, { Document } from 'mongoose';
+import mongoose, { Document, ObjectId } from 'mongoose';
 import { Album } from './album.schema';
 import { Track } from './track.schema';
 
@@ -8,6 +8,11 @@ export type UserDocument = User & Document;
 
 @Schema({ versionKey: false, timestamps: true })
 export class User {
+  @Prop({
+    type: mongoose.Schema.Types.ObjectId,
+  })
+  id: ObjectId;
+
   @ApiProperty({ name: '_id', example: 'id треку' })
   @ApiProperty({ example: 'Назва треку' })
   @Prop({
@@ -18,7 +23,6 @@ export class User {
 
   @Prop({
     type: String,
-    required: true,
   })
   password: string;
 
@@ -60,6 +64,13 @@ export class User {
     default: [],
   })
   album_push: Album[];
+
+  @Prop({
+    type: String,
+    enum: ['jwt', 'google'],
+    default: 'jwt',
+  })
+  method_registration: string;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

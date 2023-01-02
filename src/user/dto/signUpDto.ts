@@ -10,7 +10,7 @@ const passwordRegexp =
 // (?=.*[A-Z]) - строка содержит хотя бы одну латинскую букву в верхнем регистре;
 // [0 - 9a - zA - Z!@#$%^&*]{ 6,} - строка состоит не менее, чем из 6 вышеупомянутых символов
 
-export class NewUserDto {
+export class SignUpDto {
   @ApiProperty({ example: 'nickname користувача' })
   @IsString({ message: 'Повинен бути рядком' })
   readonly username: string;

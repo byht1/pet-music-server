@@ -24,6 +24,7 @@
     "треку",
     "appspot",
     "firebace",
-    "nestjs"
+    "nestjs",
+    "resave"
   ]
 }

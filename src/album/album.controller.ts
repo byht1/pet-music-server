@@ -13,9 +13,9 @@ import { AlbumDto } from './dto/album.dto';
 import { ObjectId } from 'mongoose';
 import { AlbumService } from './album.service';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
-import { JwtAuthGuard } from 'src/user/jwt-auth.guard';
 import { Request } from 'express';
 import { ApiHeader, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { JwtAuthGuard } from 'src/user/guard/jwt-auth.guard';
 
 @ApiTags('Album')
 @Controller('album')
