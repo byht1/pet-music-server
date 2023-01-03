@@ -8,7 +8,6 @@ import { User, UserDocument } from 'src/db-schema/user-schema';
 import { UserDto } from './dto/user.dto';
 import { Request } from 'express';
 import { SignUpDto } from './dto/signUpDto';
-import { isUserDto } from './dto/isUserDto';
 import { NewUserDto } from './dto/newUserDto';
 
 @Injectable()

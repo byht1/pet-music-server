@@ -9,17 +9,15 @@ import {
   UsePipes,
 } from '@nestjs/common';
 import { ApiHeader, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { OAuth2Client } from 'google-auth-library';
+
 import { UserDto } from './dto/user.dto';
 import { UserService } from './user.service';
 import { JwtAuthGuard } from './guard/jwt-auth.guard';
-import { LoginTicket, OAuth2Client } from 'google-auth-library';
 import { Request } from 'express';
 import { User } from 'src/db-schema/user-schema';
 import { SignUpDto } from './dto/signUpDto';
 import { ValidatePipe } from './pipe/validete.pipe';
-// import { RequestCustom } from './type/req';
-// import passport from 'passport';
-// import { groupEnd } from 'console';
 
 const client = new OAuth2Client(
   process.env.CLIENT_ID,
