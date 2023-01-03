@@ -1,13 +1,10 @@
-import { GoogleGuard } from './guard/google.guard';
 import {
   Body,
   Controller,
   Get,
   HttpCode,
-  HttpStatus,
   Post,
   Req,
-  Res,
   UseGuards,
   UsePipes,
 } from '@nestjs/common';
@@ -15,12 +12,19 @@ import { ApiHeader, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { UserDto } from './dto/user.dto';
 import { UserService } from './user.service';
 import { JwtAuthGuard } from './guard/jwt-auth.guard';
+import { OAuth2Client } from 'google-auth-library';
 import { Request } from 'express';
 import { User } from 'src/db-schema/user-schema';
 import { SignUpDto } from './dto/signUpDto';
 import { ValidatePipe } from './pipe/validete.pipe';
-import { RequestCustom } from './type/req';
-import passport from 'passport';
+// import { RequestCustom } from './type/req';
+// import passport from 'passport';
+// import { groupEnd } from 'console';
+
+const client = new OAuth2Client(
+  process.env.CLIENT_ID,
+  process.env.CLIENT_SECRET,
+);
 
 @ApiTags('Users')
 @Controller('users')
@@ -40,20 +44,32 @@ export class UserController {
     return this.userService.signUp(signUpDto);
   }
 
-  @Get('/google/login')
-  @UseGuards(GoogleGuard)
-  googleLogIn() {
-    return { msg: 'Google Authentication' };
+  @Post('google/auth')
+  async googlAuth(@Body('token') token) {
+    console.log('🚀  UserController  token', token);
+    const ticket: any = await client.verifyIdToken({
+      idToken: token.access_token,
+      audience: process.env.CLIENT_ID,
+    });
+    console.log('🚀  UserController  ticket', ticket);
+    // return '';
+    return `email:${ticket.payload.email} name: ${ticket.payload.name}`;
   }
 
-  @Get('/google/redirect')
-  @UseGuards(GoogleGuard)
-  googleRedirect(@Req() req: RequestCustom) {
-    console.log(11111);
-    return { msg: 'OK' };
+  // @Get('/google/login')
+  // @UseGuards(GoogleGuard)
+  // googleLogIn() {
+  //   return { msg: 'Google Authentication' };
+  // }
 
-    // return this.userService.generatorToken({ id: req.user._id });
-  }
+  // @Get('/google/redirect')
+  // @UseGuards(GoogleGuard)
+  // googleRedirect(@Req() req: RequestCustom) {
+  //   console.log(11111);
+  //   return { msg: 'OK' };
+
+  //   // return this.userService.generatorToken({ id: req.user._id });
+  // }
 
   @ApiResponse({ status: 201, type: User })
   @ApiResponse({ status: 401, description: 'Не правильний пароль або email' })

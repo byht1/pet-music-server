@@ -1,4 +1,3 @@
-import { SessionSerializer } from './strategy/Serializer';
 import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { MongooseModule } from '@nestjs/mongoose';
@@ -8,7 +7,6 @@ import { UserController } from './user.controller';
 import { User, UserSchema } from 'src/db-schema/user-schema';
 import { Album, AlbumSchema } from 'src/db-schema/album.schema';
 import { ConfigModule } from '@nestjs/config';
-import { GoogleStrategy } from './strategy/GoogleStrategy';
 
 @Module({
   imports: [
@@ -22,7 +20,7 @@ import { GoogleStrategy } from './strategy/GoogleStrategy';
       },
     }),
   ],
-  providers: [UserService, GoogleStrategy, SessionSerializer],
+  providers: [UserService],
   controllers: [UserController],
   exports: [JwtModule, UserService, MongooseModule],
 })
