@@ -12,7 +12,7 @@ import { ApiHeader, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { UserDto } from './dto/user.dto';
 import { UserService } from './user.service';
 import { JwtAuthGuard } from './guard/jwt-auth.guard';
-import { OAuth2Client } from 'google-auth-library';
+import { LoginTicket, OAuth2Client } from 'google-auth-library';
 import { Request } from 'express';
 import { User } from 'src/db-schema/user-schema';
 import { SignUpDto } from './dto/signUpDto';
@@ -46,31 +46,15 @@ export class UserController {
 
   @Post('google/auth')
   async googlAuth(@Body('token') token) {
-    console.log('🚀  UserController  token', token);
-    const ticket: any = await client.verifyIdToken({
-      idToken: token.access_token,
+    const ticket = await client.verifyIdToken({
+      idToken: token,
       audience: process.env.CLIENT_ID,
     });
-    console.log('🚀  UserController  ticket', ticket);
-    // return '';
-    return `email:${ticket.payload.email} name: ${ticket.payload.name}`;
+
+    const { email, name, picture } = ticket.getPayload();
+
+    return this.userService.googleAuth({ email, name, picture });
   }
-
-  // @Get('/google/login')
-  // @UseGuards(GoogleGuard)
-  // googleLogIn() {
-  //   return { msg: 'Google Authentication' };
-  // }
-
-  // @Get('/google/redirect')
-  // @UseGuards(GoogleGuard)
-  // googleRedirect(@Req() req: RequestCustom) {
-  //   console.log(11111);
-  //   return { msg: 'OK' };
-
-  //   // return this.userService.generatorToken({ id: req.user._id });
-  // }
-
   @ApiResponse({ status: 201, type: User })
   @ApiResponse({ status: 401, description: 'Не правильний пароль або email' })
   @ApiResponse({ status: 500, description: 'Server error' })
@@ -113,21 +97,21 @@ export class UserController {
     return this.userService.current(req);
   }
 
-  @ApiHeader({
-    name: 'Authorization',
-    required: true,
-    description: 'The token issued to the current user.',
-  })
-  @ApiResponse({ status: 201, type: [String] })
-  @ApiResponse({ status: 403, description: 'Не валідний токен' })
-  @ApiResponse({ status: 500, description: 'Server error' })
-  @UseGuards(JwtAuthGuard)
-  @Get('/album')
-  albumUser(@Req() req: Request) {
-    const {
-      user: { id },
-    }: any = req;
+  // @ApiHeader({
+  //   name: 'Authorization',
+  //   required: true,
+  //   description: 'The token issued to the current user.',
+  // })
+  // @ApiResponse({ status: 201, type: [String] })
+  // @ApiResponse({ status: 403, description: 'Не валідний токен' })
+  // @ApiResponse({ status: 500, description: 'Server error' })
+  // @UseGuards(JwtAuthGuard)
+  // @Get('/album')
+  // albumUser(@Req() req: Request) {
+  //   const {
+  //     user: { id },
+  //   }: any = req;
 
-    return this.userService.albumUser(id);
-  }
+  //   return this.userService.albumUser(id);
+  // }
 }

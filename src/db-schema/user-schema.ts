@@ -67,10 +67,9 @@ export class User {
 
   @Prop({
     type: String,
-    enum: ['jwt', 'google'],
-    default: 'jwt',
+    default: null,
   })
-  method_registration: string;
+  picture: string;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

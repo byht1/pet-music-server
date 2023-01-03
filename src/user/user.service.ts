@@ -1,3 +1,4 @@
+import { GoogleUserDto } from './dto/googleUserDto';
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, ObjectId } from 'mongoose';
@@ -17,31 +18,21 @@ export class UserService {
     private jwtService: JwtService,
   ) {}
 
-  async isUser({ email, username }: isUserDto): Promise<UserDocument> {
-    const user = await this.userModel.findOne({
-      $or: [{ username: username }, { email: email }],
-    });
+  async googleAuth({
+    email,
+    name,
+    picture,
+  }: GoogleUserDto): Promise<UserDocument> {
+    const isUser = await this.isUser(email);
 
-    return user;
-  }
+    if (isUser) return isUser;
 
-  async newUser(newUserData: NewUserDto): Promise<UserDocument> {
-    const user = await this.userModel.create({
-      ...newUserData,
-    });
-
-    return user;
-  }
-
-  async findUser(id: number): Promise<UserDocument> {
-    const user = await this.userModel.findById(id);
-
-    return user;
+    return await this.newUser({ email, username: name, picture });
   }
 
   async signUp(user: SignUpDto): Promise<UserDocument> {
     const { email, password, username } = user;
-    const isUser = await this.isUser({ email, username });
+    const isUser = await this.isUser(email);
 
     if (isUser) {
       throw new HttpException(
@@ -66,9 +57,9 @@ export class UserService {
   }
 
   async logIn(user: UserDto): Promise<UserDocument> {
-    const { username, email, password } = user;
+    const { email, password } = user;
 
-    const isUser = await this.userModel.findOne({ username });
+    const isUser = await this.userModel.findOne({ email });
 
     if (!isUser) {
       throw new HttpException('Користувача не існує', HttpStatus.UNAUTHORIZED);
@@ -80,7 +71,7 @@ export class UserService {
       throw new HttpException('Не правильний пароль', HttpStatus.UNAUTHORIZED);
     }
 
-    const payload = { username, email, id: isUser._id };
+    const payload = { id: isUser._id };
 
     const userToken = await this.generatorToken(payload);
 
@@ -93,30 +84,22 @@ export class UserService {
     return '';
   }
 
-  async userById(id: ObjectId): Promise<UserDocument> {
-    return await this.userModel.findById(id);
-  }
-
   async current(req: Request): Promise<UserDocument> {
     const {
-      user: { username, email, id },
+      user: { id },
     }: any = req;
 
-    const payload = { username, email, id };
+    const payload = { id };
     const userToken = await this.generatorToken(payload);
 
     return userToken;
   }
 
-  async albumUser(id: ObjectId) {
-    const data = await this.userModel.findById(id).populate('album');
-    // const data = this.userModel
-    //   .findById(id, { album_push: true })
-    //   .populate('albums');
-    return data;
+  async userById(id: ObjectId): Promise<UserDocument> {
+    return await this.userModel.findById(id);
   }
 
-  async generatorToken(payload): Promise<UserDocument> {
+  private async generatorToken(payload): Promise<UserDocument> {
     const id = payload.id;
     const token = this.jwtService.sign(payload);
 
@@ -127,5 +110,32 @@ export class UserService {
     );
 
     return user;
+  }
+
+  private async isUser(email: string): Promise<UserDocument> {
+    return await this.userModel.findOne({
+      email,
+    });
+  }
+
+  private async newUser(newUserData: NewUserDto): Promise<UserDocument> {
+    const picture = newUserData.picture
+      ? newUserData.picture
+      : this.avatar(newUserData.username);
+
+    const user = await this.userModel.create({
+      ...newUserData,
+      picture,
+    });
+
+    const payload = { id: user._id };
+
+    const userToken = await this.generatorToken(payload);
+
+    return userToken;
+  }
+
+  private avatar(name: string) {
+    return `https://api.multiavatar.com/${name}.png`;
   }
 }
