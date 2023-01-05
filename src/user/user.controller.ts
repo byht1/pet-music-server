@@ -1,3 +1,4 @@
+import { RequestId } from './type/req';
 import {
   Body,
   Controller,
@@ -43,7 +44,8 @@ export class UserController {
   }
 
   @Post('google/auth')
-  async googlAuth(@Body('token') token) {
+  async googlAuth(@Body('token') token: string) {
+    console.log('🚀  UserController  token', token);
     const ticket = await client.verifyIdToken({
       idToken: token,
       audience: process.env.CLIENT_ID,
@@ -53,12 +55,12 @@ export class UserController {
 
     return this.userService.googleAuth({ email, name, picture });
   }
+
   @ApiResponse({ status: 201, type: User })
   @ApiResponse({ status: 401, description: 'Не правильний пароль або email' })
   @ApiResponse({ status: 500, description: 'Server error' })
   @Post('/login')
   logIn(@Body() userDto: UserDto) {
-    console.log('login');
     return this.userService.logIn(userDto);
   }
 
@@ -91,8 +93,8 @@ export class UserController {
   @ApiResponse({ status: 500, description: 'Server error' })
   @UseGuards(JwtAuthGuard)
   @Get('/login')
-  current(@Req() req: Request) {
-    return this.userService.current(req);
+  current(@Req() req: RequestId) {
+    return this.userService.current(req.user.id);
   }
 
   // @ApiHeader({

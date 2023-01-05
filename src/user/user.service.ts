@@ -6,7 +6,6 @@ import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
 import { User, UserDocument } from 'src/db-schema/user-schema';
 import { UserDto } from './dto/user.dto';
-import { Request } from 'express';
 import { SignUpDto } from './dto/signUpDto';
 import { NewUserDto } from './dto/newUserDto';
 
@@ -24,7 +23,7 @@ export class UserService {
   }: GoogleUserDto): Promise<UserDocument> {
     const isUser = await this.isUser(email);
 
-    if (isUser) return isUser;
+    if (isUser) return await this.generatorToken(isUser._id);
 
     return await this.newUser({ email, username: name, picture });
   }
@@ -48,15 +47,12 @@ export class UserService {
       password: hashPassword,
     });
 
-    const payload = { id: newUser._id };
-
-    const userPlusToken = this.generatorToken(payload);
-
-    return userPlusToken;
+    return newUser;
   }
 
   async logIn(user: UserDto): Promise<UserDocument> {
     const { email, password } = user;
+    console.log('🚀  UserService  user', user);
 
     const isUser = await this.userModel.findOne({ email });
 
@@ -70,9 +66,7 @@ export class UserService {
       throw new HttpException('Не правильний пароль', HttpStatus.UNAUTHORIZED);
     }
 
-    const payload = { id: isUser._id };
-
-    const userToken = await this.generatorToken(payload);
+    const userToken = await this.generatorToken(isUser._id);
 
     return userToken;
   }
@@ -83,23 +77,16 @@ export class UserService {
     return '';
   }
 
-  async current(req: Request): Promise<UserDocument> {
-    const {
-      user: { id },
-    }: any = req;
-
-    const payload = { id };
-    const userToken = await this.generatorToken(payload);
-
-    return userToken;
+  async current(id: number): Promise<UserDocument> {
+    return await this.generatorToken(id);
   }
 
   async userById(id: ObjectId): Promise<UserDocument> {
     return await this.userModel.findById(id);
   }
 
-  private async generatorToken(payload): Promise<UserDocument> {
-    const id = payload.id;
+  private async generatorToken(id): Promise<UserDocument> {
+    const payload = { id };
     const token = this.jwtService.sign(payload);
 
     const user = await this.userModel.findByIdAndUpdate(
@@ -127,9 +114,7 @@ export class UserService {
       picture,
     });
 
-    const payload = { id: user._id };
-
-    const userToken = await this.generatorToken(payload);
+    const userToken = await this.generatorToken(user._id);
 
     return userToken;
   }
