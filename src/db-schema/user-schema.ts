@@ -70,6 +70,12 @@ export class User {
     default: null,
   })
   picture: string;
+
+  @Prop({
+    type: String,
+    default: null,
+  })
+  new_password_link: string;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

@@ -7,6 +7,8 @@ import { UserController } from './user.controller';
 import { User, UserSchema } from 'src/db-schema/user-schema';
 import { Album, AlbumSchema } from 'src/db-schema/album.schema';
 import { ConfigModule } from '@nestjs/config';
+import { EmailMessageModule } from 'src/email-message/email-message.module';
+import { EmailMessageService } from 'src/email-message/email-message.service';
 
 @Module({
   imports: [
@@ -19,9 +21,10 @@ import { ConfigModule } from '@nestjs/config';
         expiresIn: '24h',
       },
     }),
+    EmailMessageModule,
   ],
-  providers: [UserService],
+  providers: [UserService, EmailMessageService],
   controllers: [UserController],
-  exports: [JwtModule, UserService, MongooseModule],
+  exports: [JwtModule, UserService, MongooseModule, EmailMessageService],
 })
 export class UserModule {}

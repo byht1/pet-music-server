@@ -4,9 +4,12 @@ import {
   Controller,
   Get,
   HttpCode,
+  Param,
+  Patch,
   Post,
   Req,
   UseGuards,
+  UseInterceptors,
   UsePipes,
 } from '@nestjs/common';
 import { ApiHeader, ApiResponse, ApiTags } from '@nestjs/swagger';
@@ -19,6 +22,8 @@ import { Request } from 'express';
 import { User } from 'src/db-schema/user-schema';
 import { SignUpDto } from './dto/signUpDto';
 import { ValidatePipe } from './pipe/validete.pipe';
+import { NewPasswordDto } from './dto/newPasswordDto';
+import { NewForgottenPasswordDto } from './dto/newForgottenPassword';
 
 const client = new OAuth2Client(
   process.env.CLIENT_ID,
@@ -95,6 +100,24 @@ export class UserController {
   @Get('/login')
   current(@Req() req: RequestId) {
     return this.userService.current(req.user.id);
+  }
+
+  @Patch('/forgotten-password')
+  @UsePipes(ValidatePipe)
+  newForgottenPassword(
+    @Body() newForgottenPasswordDto: NewForgottenPasswordDto,
+  ) {
+    return this.userService.newForgottenPassword(newForgottenPasswordDto.email);
+  }
+
+  @UsePipes(ValidatePipe)
+  @Patch('/new-password/:idLink')
+  newPassword(
+    @Body() bodyPassword: NewPasswordDto,
+    @Param('idLink') idLink: string,
+  ) {
+    console.log('🚀  UserController  idLink', idLink);
+    return this.userService.newPassword(bodyPassword.password, idLink);
   }
 
   // @ApiHeader({

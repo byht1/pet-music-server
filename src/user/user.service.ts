@@ -1,3 +1,4 @@
+import { NewPasswordDto } from './dto/newPasswordDto';
 import { GoogleUserDto } from './dto/googleUserDto';
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
@@ -8,12 +9,14 @@ import { User, UserDocument } from 'src/db-schema/user-schema';
 import { UserDto } from './dto/user.dto';
 import { SignUpDto } from './dto/signUpDto';
 import { NewUserDto } from './dto/newUserDto';
+import { EmailMessageService } from 'src/email-message/email-message.service';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectModel(User.name) private userModel: Model<UserDocument>,
     private jwtService: JwtService,
+    private emailMessage: EmailMessageService,
   ) {}
 
   async googleAuth({
@@ -23,7 +26,7 @@ export class UserService {
   }: GoogleUserDto): Promise<UserDocument> {
     const isUser = await this.isUser(email);
 
-    if (isUser) return await this.generatorToken(isUser._id);
+    if (isUser) return await this.updateTokenUser(isUser._id);
 
     return await this.newUser({ email, username: name, picture });
   }
@@ -39,7 +42,7 @@ export class UserService {
       );
     }
 
-    const hashPassword = await bcrypt.hash(password, 10);
+    const hashPassword = await this.hashPassword(password);
 
     const newUser = await this.newUser({
       email,
@@ -52,7 +55,6 @@ export class UserService {
 
   async logIn(user: UserDto): Promise<UserDocument> {
     const { email, password } = user;
-    console.log('🚀  UserService  user', user);
 
     const isUser = await this.userModel.findOne({ email });
 
@@ -66,7 +68,7 @@ export class UserService {
       throw new HttpException('Не правильний пароль', HttpStatus.UNAUTHORIZED);
     }
 
-    const userToken = await this.generatorToken(isUser._id);
+    const userToken = await this.updateTokenUser(isUser._id);
 
     return userToken;
   }
@@ -78,16 +80,49 @@ export class UserService {
   }
 
   async current(id: number): Promise<UserDocument> {
-    return await this.generatorToken(id);
+    return await this.updateTokenUser(id);
+  }
+
+  async newForgottenPassword(email: string): Promise<void> {
+    const isUser = await this.isUser(email);
+
+    if (!isUser) {
+      throw new HttpException('Користувача не існує', HttpStatus.UNAUTHORIZED);
+    }
+
+    const utlLink = await this.emailMessage.newPassword(email);
+
+    await this.userModel.findByIdAndUpdate(isUser._id, {
+      new_password_link: utlLink,
+    });
+  }
+
+  async newPassword(password: string, idLink: string): Promise<void> {
+    const isUser = await this.userModel.findOne({
+      new_password_link: idLink || 'error',
+    });
+
+    if (!isUser)
+      throw new HttpException('Користувача не існує', HttpStatus.UNAUTHORIZED);
+
+    const hashPassword = await this.hashPassword(password);
+
+    await this.userModel.findByIdAndUpdate(isUser._id, {
+      password: hashPassword,
+      new_password_link: null,
+    });
   }
 
   async userById(id: ObjectId): Promise<UserDocument> {
     return await this.userModel.findById(id);
   }
 
-  private async generatorToken(id): Promise<UserDocument> {
-    const payload = { id };
-    const token = this.jwtService.sign(payload);
+  private async hashPassword(password: string) {
+    return await bcrypt.hash(password, 10);
+  }
+
+  private async updateTokenUser(id: number): Promise<UserDocument> {
+    const token = await this.generateToken(id);
 
     const user = await this.userModel.findByIdAndUpdate(
       id,
@@ -96,6 +131,12 @@ export class UserService {
     );
 
     return user;
+  }
+
+  private async generateToken(id: number): Promise<string> {
+    const payload = { id };
+
+    return this.jwtService.sign(payload);
   }
 
   private async isUser(email: string): Promise<UserDocument> {
@@ -114,7 +155,7 @@ export class UserService {
       picture,
     });
 
-    const userToken = await this.generatorToken(user._id);
+    const userToken = await this.updateTokenUser(user._id);
 
     return userToken;
   }
