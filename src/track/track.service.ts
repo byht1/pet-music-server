@@ -5,6 +5,8 @@ import { Track, TrackDocument } from 'src/db-schema/track.schema';
 import { Model, ObjectId } from 'mongoose';
 import { Comment, CommentDocument } from 'src/db-schema/comment.schema';
 import { fbStorage, FileType } from 'src/firebase/firebace';
+import { RFiles } from 'src/album/album.service';
+import { NewAlbumTrackDto } from './dto/newAlbumTrackDto';
 
 @Injectable()
 export class TrackService {
@@ -17,7 +19,7 @@ export class TrackService {
     newTrack: NewTrackDto,
     picture,
     audio,
-  ): Promise<TrackDocument | any> {
+  ): Promise<TrackDocument> {
     const audioPath = await fbStorage(FileType.AUDIO, audio);
     const picturePath = await fbStorage(FileType.IMAGE, picture);
 
@@ -26,6 +28,23 @@ export class TrackService {
       picture: picturePath,
       audio: audioPath,
     });
+    return response;
+  }
+
+  async newAlbumPlusTrack(
+    albumId: ObjectId,
+    files: RFiles,
+    data: NewAlbumTrackDto,
+  ): Promise<TrackDocument> {
+    const filePath = await this.filePush(files);
+
+    const response = await this.trackModule.create({
+      ...data,
+      picture: filePath.picturePath,
+      audio: filePath.audioPath,
+      album: albumId,
+    });
+
     return response;
   }
 
@@ -64,5 +83,15 @@ export class TrackService {
   async likesPlus(id: ObjectId): Promise<void> {
     const response = await this.trackModule.findById(id);
     response.likes += 1;
+  }
+
+  private async filePush({ audio, picture }: RFiles): Promise<{
+    audioPath: string;
+    picturePath: string;
+  }> {
+    const audioPath = await fbStorage(FileType.AUDIO, audio);
+    const picturePath = picture ? await fbStorage(FileType.IMAGE, picture) : '';
+
+    return { audioPath, picturePath };
   }
 }

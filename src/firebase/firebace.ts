@@ -20,7 +20,7 @@ export enum FileType {
   IMAGE = 'image',
 }
 
-export async function fbStorage(type, file) {
+export async function fbStorage(type, file): Promise<string> {
   const fileExtension = file.originalname.split('.').pop();
   const fileName = uuid.v4() + '.' + fileExtension;
   file.originalname = fileName;

@@ -15,5 +15,6 @@ import { UserModule } from 'src/user/user.module';
   ],
   controllers: [TrackController],
   providers: [TrackService],
+  exports: [TrackService],
 })
 export class TrackModule {}

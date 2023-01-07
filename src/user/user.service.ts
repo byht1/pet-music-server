@@ -1,4 +1,3 @@
-import { NewPasswordDto } from './dto/newPasswordDto';
 import { GoogleUserDto } from './dto/googleUserDto';
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
@@ -79,7 +78,7 @@ export class UserService {
     return '';
   }
 
-  async current(id: number): Promise<UserDocument> {
+  async current(id: ObjectId): Promise<UserDocument> {
     return await this.updateTokenUser(id);
   }
 
@@ -121,7 +120,7 @@ export class UserService {
     return await bcrypt.hash(password, 10);
   }
 
-  private async updateTokenUser(id: number): Promise<UserDocument> {
+  private async updateTokenUser(id: ObjectId): Promise<UserDocument> {
     const token = await this.generateToken(id);
 
     const user = await this.userModel.findByIdAndUpdate(
@@ -133,7 +132,7 @@ export class UserService {
     return user;
   }
 
-  private async generateToken(id: number): Promise<string> {
+  private async generateToken(id: ObjectId): Promise<string> {
     const payload = { id };
 
     return this.jwtService.sign(payload);

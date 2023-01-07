@@ -1,3 +1,4 @@
+import { RequestId } from './../user/type/req';
 import {
   Controller,
   Get,
@@ -16,6 +17,7 @@ import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { Request } from 'express';
 import { ApiHeader, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/user/guard/jwt-auth.guard';
+import { NewTrackDto } from 'src/track/dto/newTrack.dto';
 
 @ApiTags('Album')
 @Controller('album')
@@ -24,50 +26,56 @@ export class AlbumController {
 
   @Post()
   @UseGuards(JwtAuthGuard)
-  @UseInterceptors(FileFieldsInterceptor([{ name: 'picture', maxCount: 1 }]))
+  @UseInterceptors(
+    FileFieldsInterceptor([
+      { name: 'picture_link', maxCount: 1 },
+      { name: 'audio_link', maxCount: 1 },
+    ]),
+  )
   newAlbum(
-    @Body() albumDto: AlbumDto,
+    @Body() albumDto: AlbumDto & NewTrackDto,
     @UploadedFiles() files,
-    @Req() req: Request,
+    @Req() req: RequestId,
   ) {
-    const {
-      user: { id },
-    }: any = req;
-    const { picture } = files;
-
-    return this.albumService.newAlbum(albumDto, picture[0], id);
+    console.log('🚀  AlbumController  files', files);
+    console.log('🚀  AlbumController  albumDto', albumDto);
+    return this.albumService.newAlbum(
+      albumDto,
+      { picture: files.picture_link[0], audio: files.audio[0] },
+      req.user.id,
+    );
   }
 
-  @Get()
-  albumAll() {
-    return this.albumService.albumAll();
-  }
+  // @Get()
+  // albumAll() {
+  //   return this.albumService.albumAll();
+  // }
 
-  @Get('/:id')
-  albumById(@Param('id') id: ObjectId) {
-    return this.albumService.albumById(id);
-  }
+  // @Get('/:id')
+  // albumById(@Param('id') id: ObjectId) {
+  //   return this.albumService.albumById(id);
+  // }
 
-  @Get('/like/:id')
-  likesPlus(@Param('id') id: ObjectId) {
-    return this.albumService.likesPlus(id);
-  }
+  // @Get('/like/:id')
+  // likesPlus(@Param('id') id: ObjectId) {
+  //   return this.albumService.likesPlus(id);
+  // }
 
-  @ApiHeader({
-    name: 'Authorization',
-    required: true,
-    description: 'The token issued to the current user.',
-  })
-  @ApiResponse({ status: 201, type: [String] })
-  @ApiResponse({ status: 403, description: 'Не валідний токен' })
-  @ApiResponse({ status: 500, description: 'Server error' })
-  @UseGuards(JwtAuthGuard)
-  @Get('user/album-list-push')
-  albumUser(@Req() req: Request) {
-    const {
-      user: { id },
-    }: any = req;
+  // @ApiHeader({
+  //   name: 'Authorization',
+  //   required: true,
+  //   description: 'The token issued to the current user.',
+  // })
+  // @ApiResponse({ status: 201, type: [String] })
+  // @ApiResponse({ status: 403, description: 'Не валідний токен' })
+  // @ApiResponse({ status: 500, description: 'Server error' })
+  // @UseGuards(JwtAuthGuard)
+  // @Get('user/album-list-push')
+  // albumUser(@Req() req: Request) {
+  //   const {
+  //     user: { id },
+  //   }: any = req;
 
-    return this.albumService.albumUser(id);
-  }
+  //   return this.albumService.albumUser(id);
+  // }
 }

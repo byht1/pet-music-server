@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import mongoose, { Document } from 'mongoose';
+import mongoose, { Document, ObjectId } from 'mongoose';
 import { ApiProperty } from '@nestjs/swagger';
 import { Track } from './track.schema';
 import { Comment } from './comment.schema';
@@ -8,27 +8,29 @@ export type AlbumDocument = Album & Document;
 
 @Schema({ versionKey: false, timestamps: true })
 export class Album {
-  @Prop()
+  @Prop({
+    type: String,
+    required: true,
+  })
   name_album: string;
 
-  @Prop()
+  @Prop({
+    type: String,
+    default: '',
+  })
   picture: string;
 
-  @Prop()
-  author: string;
-
-  @ApiProperty({ type: () => [Track] })
   @Prop({
-    type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Track' }],
+    type: String,
+    required: true,
+  })
+  artist: string;
+
+  @Prop({
+    type: [String],
     default: [],
   })
-  album_tracks: Track[];
-
-  @Prop()
   genre: string[];
-
-  @Prop()
-  group_name: string;
 
   @Prop()
   release_date: string;
@@ -39,12 +41,25 @@ export class Album {
   })
   likes: number;
 
+  @ApiProperty({ type: () => [Track] })
+  @Prop({
+    type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Track' }],
+    default: [],
+  })
+  album_tracks: Track[];
+
   @ApiProperty({ type: () => [Comment] })
   @Prop({
     type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Comment' }],
     default: [],
   })
   comments: Comment[];
+
+  @Prop({
+    type: mongoose.Schema.Types.ObjectId,
+    required: true,
+  })
+  user: ObjectId;
 }
 
 export const AlbumSchema = SchemaFactory.createForClass(Album);

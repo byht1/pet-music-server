@@ -6,6 +6,13 @@ import { User, UserDocument } from 'src/db-schema/user-schema';
 import { Model, ObjectId } from 'mongoose';
 import { fbStorage, FileType } from 'src/firebase/firebace';
 import { UserService } from 'src/user/user.service';
+import { TrackService } from 'src/track/track.service';
+import { NewAlbumTrackDto } from 'src/track/dto/newAlbumTrackDto';
+
+export type RFiles = {
+  picture?: any;
+  audio: any;
+};
 
 @Injectable()
 export class AlbumService {
@@ -13,47 +20,59 @@ export class AlbumService {
     @InjectModel(Album.name) private albumSchema: Model<AlbumDocument>,
     @InjectModel(User.name) private userModel: Model<UserDocument>,
     private userService: UserService,
+    private trackService: TrackService,
   ) {}
 
   async newAlbum(
-    albumDto: AlbumDto,
-    picture,
+    albumDto: AlbumDto & NewAlbumTrackDto,
+    files: RFiles,
     id: ObjectId,
   ): Promise<AlbumDocument> {
-    const picturePath = await fbStorage(FileType.IMAGE, picture);
-    const response = await this.albumSchema.create({
+    const newAlbum = await this.albumSchema.create({
       ...albumDto,
-      picture: picturePath,
-      genre: albumDto.genre.split(','),
+      user: id,
     });
 
-    const user = await this.userService.userById(id);
-    user.album_push.push(response._id);
-    await user.save();
+    const trackDto: NewAlbumTrackDto = {
+      name: albumDto.name,
+      genre: albumDto.genre,
+      author_track: albumDto.author_track,
+      text_track: albumDto.text_track,
+    };
 
-    return response;
+    const track = await this.trackService.newAlbumPlusTrack(
+      newAlbum._id,
+      files,
+      trackDto,
+    );
+
+    newAlbum.album_tracks.push(track._id);
+
+    newAlbum.save();
+
+    return newAlbum;
   }
 
-  async albumAll(): Promise<AlbumDocument[]> {
-    const response = await this.albumSchema.find();
-    return response;
-  }
+  // async albumAll(): Promise<AlbumDocument[]> {
+  //   const response = await this.albumSchema.find();
+  //   return response;
+  // }
 
-  async albumById(id: ObjectId): Promise<AlbumDocument> {
-    const response = await this.albumSchema.findById(id).populate('comments');
-    return response;
-  }
+  // async albumById(id: ObjectId): Promise<AlbumDocument> {
+  //   const response = await this.albumSchema.findById(id).populate('comments');
+  //   return response;
+  // }
 
-  async likesPlus(id: ObjectId): Promise<void> {
-    const response = await this.albumSchema.findById(id);
-    response.likes += 1;
-    response.save();
-  }
+  // async likesPlus(id: ObjectId): Promise<void> {
+  //   const response = await this.albumSchema.findById(id);
+  //   response.likes += 1;
+  //   response.save();
+  // }
 
-  async albumUser(id: ObjectId) {
-    const data = await this.userModel
-      .findById(id, 'album_push')
-      .populate('album_push');
-    return data.album_push.map((album) => album.name_album);
-  }
+  // async albumUser(id: ObjectId) {
+  //   const data = await this.userModel
+  //     .findById(id, 'album_push')
+  //     .populate('album_push');
+  //   return data.album_push.map((album) => album.name_album);
+  // }
 }

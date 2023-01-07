@@ -1,3 +1,4 @@
+import { ObjectId } from 'mongoose';
 import { UserDocument } from 'src/db-schema/user-schema';
 
 export interface RequestCustom extends Express.Request {
@@ -5,5 +6,5 @@ export interface RequestCustom extends Express.Request {
 }
 
 export interface RequestId extends Express.Request {
-  user?: { id: number };
+  user?: { id: ObjectId };
 }

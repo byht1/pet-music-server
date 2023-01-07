@@ -16,13 +16,6 @@ export class Track {
   })
   name: string;
 
-  @ApiProperty({ example: 'Назва альбому' })
-  @Prop({
-    type: String,
-    required: true,
-  })
-  author_track: string;
-
   @ApiProperty({ example: 'id альбому' })
   @Prop({
     type: mongoose.Schema.Types.ObjectId,
@@ -30,13 +23,6 @@ export class Track {
     default: null,
   })
   album: Album;
-
-  @ApiProperty({ example: '23.10.2022' })
-  @Prop({
-    type: String,
-    required: true,
-  })
-  date_implementation: string;
 
   @ApiProperty({ example: 'link' })
   @Prop({
